@@ -10,7 +10,7 @@
     {% if request.META.HTTP_REFERER %}
       <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">Cancel</a>
     {% else %}
-      <a href="{% url 'taxi:driver-list' pk=object.id %}" class="btn btn-secondary">Cancel</a>
+      <a href="{% url 'taxi:driver-list' %}" class="btn btn-secondary">Cancel</a>
     {% endif %}
   </form>
 {% endblock %}

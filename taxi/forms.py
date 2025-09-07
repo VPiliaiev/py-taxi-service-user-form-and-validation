@@ -1,14 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from django.core.exceptions import ValidationError
 
 from taxi.models import Driver, Car
+from taxi.validators import validate_license_number
 
 
 class DriverCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
-        model = Driver
+        model = get_user_model()
         fields = UserCreationForm.Meta.fields + (
             "first_name",
             "last_name",
@@ -16,32 +16,16 @@ class DriverCreationForm(UserCreationForm):
         )
 
     def clean_license_number(self):
-        license_number = self.cleaned_data["license_number"]
-        if len(license_number) != 8:
-            raise ValidationError(
-                "Ensure that value length is equal 8"
-            )
-        if not (license_number[:3].isalpha() and license_number[:3].isupper()):
-            raise ValidationError(
-                "Ensure that the first 3 chars are letter and are upper"
-            )
-        if not license_number[3:8].isdigit():
-            raise ValidationError(
-                "Ensure that the last 5 chars are digits"
-            )
-        return license_number
+        return validate_license_number(self.cleaned_data["license_number"])
 
 
 class DriverLicenseUpdateForm(forms.ModelForm):
-    drivers = forms.ModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-
     class Meta:
-        model = Driver
-        fields = "__all__"
+        model = get_user_model()
+        fields = ["license_number"]
+
+    def clean_license_number(self):
+        return validate_license_number(self.cleaned_data["license_number"])
 
 
 class CarForm(forms.ModelForm):
